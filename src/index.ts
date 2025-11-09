@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-
+import cors from 'cors';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { z } from 'zod';
 import { Resend } from 'resend';
@@ -10,15 +10,17 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const staticSearchUrl = process.env.STATIC_SEARCH_API_URL;
 const appointmentServiceUrl = process.env.APPOINTMENT_SERVICE_URL;
 
-  const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: undefined,
-    enableJsonResponse: true
-  });
+const transport = new StreamableHTTPServerTransport({
+  sessionIdGenerator: undefined,
+  enableJsonResponse: true
+});
   
 const server = new McpServer({
   name: 'mcp-server',
   version: '1.0.1',
 });
+
+
 
 const createAppointmentSchema = {
   dateTime: z.string().datetime().describe("The appointment start time."),
@@ -37,9 +39,12 @@ const sendEmailSchema = {
 
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
+app.use(cors());
+app.options("/mcp", cors());
 
-app.post('/api/mcp', async (req, res) => {
+
+app.post('/mcp', async (req, res) => {
 
     // Tool Registry
     /**
