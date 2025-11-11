@@ -17,6 +17,7 @@ app.options("/mcp", (_req, res) => res.sendStatus(204));
 app.post("/mcp", async (req, res) => {
   const transport = new StreamableHTTPServerTransport({
   sessionIdGenerator: undefined,
+  enableJsonResponse: true,
 });
 
   transportCleanup(res, transport);
@@ -25,6 +26,7 @@ app.post("/mcp", async (req, res) => {
 });
 
 function transportCleanup(res: express.Response, transport: StreamableHTTPServerTransport) {
+
   const cleanup = () => {
     try { transport.close(); } catch {}
     res.off("finish", cleanup);
