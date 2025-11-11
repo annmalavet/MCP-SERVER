@@ -17,6 +17,7 @@ app.options("/", (_req, res) => res.sendStatus(204));
 async function handleMCPRequest(req: express.Request, res: express.Response) { 
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
+    enableJsonResponse: true
   });
 
   transportCleanup(res, transport);
