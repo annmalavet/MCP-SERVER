@@ -8,7 +8,7 @@ const registered = (g[kReg] ??= new Set<string>()) as Set<string>;
 
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const staticSearchUrl = process.env.STATIC_SEARCH_API_URL;
+const staticSearchUrl = process.env.EMAIL_SEARCH_API_URL;
 const appointmentServiceUrl = process.env.APPOINTMENT_SERVICE_URL;
 
 const createAppointmentSchema = {
