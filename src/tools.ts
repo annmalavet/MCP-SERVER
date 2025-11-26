@@ -11,59 +11,20 @@ const staticSearchUrl = process.env.EMAIL_SEARCH_API_URL;
 const appointmentServiceUrl = process.env.APPOINTMENT_SERVICE_URL;
 
 const createAppointmentSchema = {
-    type: "object",
-    properties: {
-        dateTime: { 
-            type: "string", 
-            description: "The appointment start time." 
-        },
-        attendeeEmail: { 
-            type: "string", 
-            format: "email",
-            description: "The email of the person to invite." 
-        },
-        durationInMinutes: { 
-            type: "integer", 
-            minimum: 1,
-            description: "The duration in minutes." 
-        },
-    },
-    required: ["dateTime", "attendeeEmail", "durationInMinutes"]
+    dateTime: z.string().datetime().describe("The appointment start time."),
+    attendeeEmail: z.string().email().describe("The email of the person to invite."),
+    durationInMinutes: z.number().int().positive().describe("The duration in minutes."),
 };
 
 const searchEmailsSchema = {
-    type: "object",
-    properties: {
-        query: { 
-            type: "string", 
-            description: "The text to search for in the email archive." 
-        }
-    },
-    required: ["query"]
+    query: z.string().min(1).describe("The text to search for in the email archive."),
 };
 
 const sendEmailSchema = {
-    type: "object",
-    properties: {
-        to: { 
-            type: "string", 
-            format: "email", 
-            description: "The email address." 
-        },
-        subject: { 
-            type: "string", 
-            minLength: 1, 
-            description: "The subject line." 
-        },
-        body: { 
-            type: "string", 
-            minLength: 1, 
-            description: "The content of the email." 
-        }
-    },
-    required: ["to", "subject", "body"]
+    to: z.string().email().describe("The recipient's email address."),
+    subject: z.string().min(1).describe("The subject line of the email."),
+    body: z.string().min(1).describe("The plain text content of the email."),
 };
-
 
 function registerOnce(name: string, meta: any, handler: any) {
     if (registered.has(name)) return;
@@ -76,10 +37,10 @@ registerOnce(
     {
         title: 'Search Email Archive',
         description: 'Searches the static email archive for a query.',
-        inputSchema: searchEmailsSchema as any, 
+        inputSchema: searchEmailsSchema, // Pass the Zod shape directly
     },
     async (params: any) => {
-        console.log(`Tool 'search_emails' called with query: ${params.query}`);
+        console.error(`Tool 'search_emails' called with query: ${params.query}`);
         
         if (!staticSearchUrl) {
             return { content: [{ type: 'text', text: 'Error: The EMAIL_SEARCH_API_URL is not configured.' }] };
@@ -101,6 +62,7 @@ registerOnce(
 
             const formattedResults = `Search found ${searchResults.length} results:\n` +
                 searchResults.map((r: any) => `- ${r.subject} (from: ${r.from})`).join('\n');
+            
                 
             return { content: [{ type: 'text', text: formattedResults }] };
 
@@ -116,13 +78,13 @@ registerOnce(
     {
         title: 'Create Appointment', 
         description: 'Books a new appointment with the doctor.',
-        inputSchema: createAppointmentSchema as any,
+        inputSchema: createAppointmentSchema,
     }, 
     async (params: any) => {
-        console.log(`Tool 'create_appointment' called.`);
+        console.error(`Tool 'create_appointment' called.`);
         
         if (!appointmentServiceUrl) {
-            return { content: [{ type: 'text', text: 'Error: The APPOINTMENT_SERVICE_URL is not configured.' }] };
+            return { content: [{ type: 'text', text: 'Error: The url is not configured.' }] };
         }
         
         try {
@@ -156,18 +118,18 @@ registerOnce(
     {
         title: 'Send Email',
         description: 'Sends an email to a recipient.',
-        inputSchema: sendEmailSchema as any,
+        inputSchema: sendEmailSchema,
     },
     async (params: any) => {
-        console.log(`Tool 'send_email' called to: ${params.to}`);
+        console.error(`Tool 'send_email' called to: ${params.to}`);
 
         if (!process.env.RESEND_API_KEY) {
-             return { content: [{ type: 'text', text: 'Error: RESEND_API_KEY is not configured.' }] };
+             return { content: [{ type: 'text', text: 'Error: key is not configured.' }] };
         }
 
         try {
             const { data, error } = await resend.emails.send({
-                from: 'test@test.dev', 
+                from: 'onboarding@resend.dev', 
                 to: params.to,
                 subject: params.subject,
                 html: params.body, 
