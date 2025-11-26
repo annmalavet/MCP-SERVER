@@ -7,7 +7,7 @@ const g = globalThis as any;
 const registered = (g[kReg] ??= new Set());
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const staticSearchUrl = process.env.STATIC_SEARCH_API_URL;
+const staticSearchUrl = process.env.EMAIL_SEARCH_API_URL;
 const appointmentServiceUrl = process.env.APPOINTMENT_SERVICE_URL;
 
 const createAppointmentSchema = {
@@ -82,7 +82,7 @@ registerOnce(
         console.log(`Tool 'search_emails' called with query: ${params.query}`);
         
         if (!staticSearchUrl) {
-            return { content: [{ type: 'text', text: 'Error: The STATIC_SEARCH_API_URL is not configured.' }] };
+            return { content: [{ type: 'text', text: 'Error: The EMAIL_SEARCH_API_URL is not configured.' }] };
         }
 
         try {
