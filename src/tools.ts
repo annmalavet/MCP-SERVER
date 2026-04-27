@@ -129,7 +129,7 @@ registerOnce(
 
         try {
             const { data, error } = await resend.emails.send({
-                from: 'mcp@shard.guard', 
+                from: 'mcp@resend.dev', 
                 to: params.to,
                 subject: params.subject,
                 html: params.body, 
